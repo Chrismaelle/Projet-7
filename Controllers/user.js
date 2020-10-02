@@ -44,31 +44,31 @@ exports.signup = (req, res, next) => {
   }
 
   if (!pwRegex.test(password)) {
-    return res
-      .status(400)
-      .json({
-        message:
-          "Votre mot de passe doit contenir entre 4 et 8 caractères et contenir au moins 1 nombre",
-      });
+    return res.status(400).json({
+      message:
+        "Votre mot de passe doit contenir entre 4 et 8 caractères et contenir au moins 1 nombre",
+    });
   }
 
-  models.User.findOne({
-    // Je vérifie que l'email n'existe pas déjà
-    attributes: ["email"],
-    where: { email: email },
-  })
+  models.user
+    .findOne({
+      // Je vérifie que l'email n'existe pas déjà
+      attributes: ["email"],
+      where: { email: email },
+    })
     .then((userFound) => {
       if (!userFound) {
         bcrypt.hash(password, 10, function (err, bcryptedPassword) {
           //Hashage du mot de passe
-          let newUser = models.User.create({
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: bcryptedPassword,
-            job: job,
-            isAdmin: 0,
-          })
+          let newUser = models.user
+            .create({
+              firstName: firstName,
+              lastName: lastName,
+              email: email,
+              password: bcryptedPassword,
+              job: job,
+              isAdmin: 0,
+            })
             .then(function (newUser) {
               return res.status(201).json({ userId: newUser });
             })
@@ -100,9 +100,10 @@ exports.login = (req, res, next) => {
       .json({ message: "Veuillez remplir tous les champs !" });
   }
 
-  models.User.findOne({
-    where: { email: email },
-  })
+  models.user
+    .findOne({
+      where: { email: email },
+    })
     .then((userFound) => {
       if (userFound) {
         bcrypt.compare(password, userFound.password, function (
@@ -132,29 +133,29 @@ exports.login = (req, res, next) => {
 exports.getProfile = (req, res, next) => {
   //Profil Utilisateur
 
-  models.User.findOne({
-    attributes: ["firstName", "lastName", "email", "job"],
-    where: { id: req.params.id },
-  })
+  models.user
+    .findOne({
+      attributes: ["firstName", "lastName", "email", "job"],
+      where: { id: req.params.id },
+    })
     .then((User) => {
       if (User) {
         return res.status(200).json({ User });
       } else {
-        return res
-          .status(400)
-          .json({
-            message: "Impossible de récupérer votre profil utilisateur",
-          });
+        return res.status(400).json({
+          message: "Impossible de récupérer votre profil utilisateur",
+        });
       }
     })
     .catch((error) => res.status(500).json({ error }));
 };
 exports.updateProfil = (req, res, next) => {
   // Modification du Profil Utilisateur
-  models.User.findOne({
-    attributes: ["job", "id"],
-    where: { id: req.params.id },
-  })
+  models.user
+    .findOne({
+      attributes: ["job", "id"],
+      where: { id: req.params.id },
+    })
     .then((userFound) => {
       if (userFound) {
         userFound
@@ -185,9 +186,10 @@ exports.updateProfil = (req, res, next) => {
 exports.deleteUser = (req, res, next) => {
   // Suppression d'un compte utilisateur
 
-  models.User.findOne({
-    where: { id: req.params.id },
-  })
+  models.user
+    .findOne({
+      where: { id: req.params.id },
+    })
     .then((userFoundForDelete) => {
       if (userFoundForDelete) {
         userFoundForDelete
@@ -203,12 +205,10 @@ exports.deleteUser = (req, res, next) => {
               .json({ error, message: "L'utilisateur n'a pas été supprimé." })
           );
       } else {
-        return res
-          .status(400)
-          .json({
-            message:
-              "L'utilisateur n'a pas été trouvé, il ne peut être supprimé.",
-          });
+        return res.status(400).json({
+          message:
+            "L'utilisateur n'a pas été trouvé, il ne peut être supprimé.",
+        });
       }
     })
     .catch((error) =>
