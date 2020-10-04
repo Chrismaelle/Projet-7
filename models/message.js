@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
       content: DataTypes.STRING,
       attachement: DataTypes.STRING,
       likes: DataTypes.INTEGER,
-      idUSER: DataTypes.INTEGER,
     },
     {
       sequelize,

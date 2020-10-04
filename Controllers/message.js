@@ -7,9 +7,7 @@ exports.createMessage = (req, res, next) => {
 
   let title = req.body.title;
   let content = req.body.content;
-  let attachmentURL = `${req.protocol}://${req.get("host")}/images/${
-    req.file.filename
-  }`;
+
   if (title === null || content === null) {
     res.status(400).json({ message: "Veuillez remplir tous les champs !" });
   }
@@ -35,11 +33,10 @@ exports.createMessage = (req, res, next) => {
 
         models.message
           .create({
-            title: title,
-            content: content,
-            attachment: attachmentURL,
+            title: req.body.title,
+            content: req.body.content,
             likes: 0,
-            UserId: userId,
+            UserId: userFound.id,
           })
           .then((newMessage) => {
             res.status(201).json({ newMessage, User: userFound });
