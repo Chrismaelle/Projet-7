@@ -30,13 +30,12 @@ exports.createMessage = (req, res, next) => {
       if (userFound) {
         let userliked = [];
         let like = 0;
-
         models.message
           .create({
             title: req.body.title,
             content: req.body.content,
             likes: 0,
-            UserId: userFound.id,
+            userId: userFound.id,
           })
           .then((newMessage) => {
             res.status(201).json({ newMessage, User: userFound });
@@ -55,8 +54,7 @@ exports.createMessage = (req, res, next) => {
     .catch((error) =>
       res.status(500).json({
         error,
-        message:
-          "L'utilisateur n'a pas été trouvé, le message n'est donc pas envoyé",
+        message: "Il y a eu une erreur dans l'envoie du message !",
       })
     );
 };
@@ -137,16 +135,18 @@ exports.deleteMessage = (req, res, next) => {
     })
     .then((userFound) => {
       if (userFound) {
+        console.log(models.message);
         models.message
           .findOne({
             where: { id: req.params.id },
           })
           .then((messageFound) => {
             if (messageFound) {
-              if (messageFound.UserId === userId || userFound.isAdmin === 1) {
-                models.Message.destroy({
-                  where: { id: req.params.id },
-                })
+              if (messageFound.userId === userId || userFound.isAdmin === 1) {
+                models.message
+                  .destroy({
+                    where: { id: req.params.id },
+                  })
                   .then(res.status(200).json({ message: "Message supprimé !" }))
                   .catch((error) =>
                     res.status(500).json({
@@ -183,7 +183,7 @@ exports.likeOrNot = (req, res, next) => {
         {
           likes: req.body.likes++,
         },
-        { $push: { userliked: req.body.UserId } },
+        { $push: { userliked: req.body.userId } },
         {
           where: { id: req.params.id },
         }
